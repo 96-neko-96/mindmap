@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { MindMap, MindMapNode, MindMapAction, ViewState } from '../types';
+import React, { createContext, useContext, useReducer } from 'react';
+import type { ReactNode } from 'react';
+import type { MindMap, MindMapNode, MindMapAction, ViewState } from '../types/index';
 
 // Initial state
 const createInitialNode = (): MindMapNode => ({

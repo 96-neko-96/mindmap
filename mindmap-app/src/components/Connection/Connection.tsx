@@ -1,4 +1,4 @@
-import { MindMapNode } from '../../types';
+import type { MindMapNode } from '../../types/index';
 
 interface ConnectionProps {
   from: MindMapNode;

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { MindMapNode } from '../../types';
+import type { MindMapNode } from '../../types/index';
 import { useMindMap } from '../../context/MindMapContext';
 
 interface NodeProps {
