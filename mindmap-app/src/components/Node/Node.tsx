@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import type { MindMapNode } from '../../types/index';
 import { useMindMap } from '../../context/MindMapContext';
+import * as Icons from 'lucide-react';
 
 interface NodeProps {
   node: MindMapNode;
@@ -61,9 +62,15 @@ export function Node({ node, onDragStart }: NodeProps) {
 
   const borderRadius = node.shape === 'rounded' ? '8px' : node.shape === 'ellipse' ? '50%' : '0px';
 
+  const getIconComponent = (iconName: string | undefined) => {
+    if (!iconName) return null;
+    const IconComponent = Icons[iconName as keyof typeof Icons] as React.ComponentType<{ size?: number; className?: string }>;
+    return IconComponent ? <IconComponent size={node.fontSize} className="flex-shrink-0" /> : null;
+  };
+
   return (
     <div
-      className="absolute cursor-move select-none"
+      className="absolute cursor-move select-none animate-fadeIn"
       style={{
         left: node.x - node.width / 2,
         top: node.y - node.height / 2,
@@ -74,7 +81,7 @@ export function Node({ node, onDragStart }: NodeProps) {
       onDoubleClick={handleDoubleClick}
     >
       <div
-        className="w-full h-full flex items-center justify-center px-4 py-2 shadow-md transition-all"
+        className="w-full h-full flex items-center justify-center px-4 py-2 shadow-md transition-all duration-200 hover:shadow-lg"
         style={{
           backgroundColor: node.color,
           color: node.textColor,
@@ -105,14 +112,16 @@ export function Node({ node, onDragStart }: NodeProps) {
           />
         ) : (
           <div
-            className="text-center break-words"
+            className="flex items-center justify-center gap-2 break-words"
             style={{
               fontSize: node.fontSize,
               fontWeight: node.fontWeight,
               fontStyle: node.fontStyle,
             }}
           >
-            {node.text}
+            {node.icon && node.iconPosition === 'before' && getIconComponent(node.icon)}
+            <span className="text-center">{node.text}</span>
+            {node.icon && node.iconPosition === 'after' && getIconComponent(node.icon)}
           </div>
         )}
       </div>

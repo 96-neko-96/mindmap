@@ -146,10 +146,14 @@ export function Canvas() {
     });
   });
 
+  const isDark = mindMap.theme === 'dark';
+
   return (
     <div
       ref={canvasRef}
-      className="flex-1 overflow-hidden bg-gray-50 relative"
+      className={`flex-1 overflow-hidden relative transition-colors ${
+        isDark ? 'bg-gray-900' : 'bg-gray-50'
+      }`}
       onMouseDown={handleCanvasMouseDown}
       onWheel={handleWheel}
       style={{ cursor: isPanning ? 'grabbing' : 'grab' }}

@@ -1,7 +1,11 @@
+import { useState } from 'react';
 import { useMindMap } from '../../context/MindMapContext';
+import { CONNECTION_COLORS } from '../../utils/constants';
+import * as Icons from 'lucide-react';
 
 export function Toolbar() {
-  const { mindMap, viewState, setViewState } = useMindMap();
+  const { mindMap, viewState, setViewState, dispatch } = useMindMap();
+  const [showConnectionPanel, setShowConnectionPanel] = useState(false);
 
   const handleZoomIn = () => {
     setViewState((prev) => ({ ...prev, zoom: Math.min(prev.zoom + 0.1, 2) }));
@@ -15,36 +19,190 @@ export function Toolbar() {
     setViewState({ zoom: 1, panX: 0, panY: 0, selectedNodeId: null });
   };
 
+  const handleThemeToggle = () => {
+    dispatch({
+      type: 'SET_THEME',
+      payload: { theme: mindMap.theme === 'light' ? 'dark' : 'light' },
+    });
+  };
+
+  const updateConnection = (updates: {
+    connectionStyle?: 'curved' | 'straight' | 'angled';
+    connectionColor?: string;
+    connectionWidth?: number;
+  }) => {
+    dispatch({
+      type: 'UPDATE_CONNECTION',
+      payload: updates,
+    });
+  };
+
+  const isDark = mindMap.theme === 'dark';
+
   return (
-    <div className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 shadow-sm">
+    <div className={`h-14 border-b flex items-center justify-between px-4 shadow-sm transition-colors ${
+      isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+    }`}>
       <div className="flex items-center gap-4">
-        <h1 className="text-lg font-semibold text-gray-800">{mindMap.name}</h1>
+        <div className="flex items-center gap-2">
+          <Icons.Brain className={`${isDark ? 'text-blue-400' : 'text-blue-500'}`} size={24} />
+          <h1 className={`text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
+            {mindMap.name}
+          </h1>
+        </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
+        {/* Connection Line Settings */}
+        <div className="relative">
+          <button
+            onClick={() => setShowConnectionPanel(!showConnectionPanel)}
+            className={`px-3 py-1.5 rounded text-sm font-medium transition-colors flex items-center gap-2 ${
+              isDark
+                ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+            }`}
+            title="Connection Settings"
+          >
+            <Icons.GitBranch size={16} />
+            Lines
+          </button>
+
+          {showConnectionPanel && (
+            <div className={`absolute right-0 top-12 p-4 rounded-lg shadow-xl border z-50 w-64 ${
+              isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+            }`}>
+              <div className="space-y-3">
+                <div>
+                  <label className={`block text-xs font-medium mb-2 ${
+                    isDark ? 'text-gray-300' : 'text-gray-600'
+                  }`}>
+                    Style
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {(['curved', 'straight', 'angled'] as const).map((style) => (
+                      <button
+                        key={style}
+                        onClick={() => updateConnection({ connectionStyle: style })}
+                        className={`px-2 py-1.5 text-xs rounded transition-all ${
+                          mindMap.connectionStyle === style
+                            ? 'bg-blue-500 text-white'
+                            : isDark
+                            ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {style.charAt(0).toUpperCase() + style.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className={`block text-xs font-medium mb-2 ${
+                    isDark ? 'text-gray-300' : 'text-gray-600'
+                  }`}>
+                    Color
+                  </label>
+                  <div className="grid grid-cols-5 gap-2">
+                    {CONNECTION_COLORS.map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => updateConnection({ connectionColor: color })}
+                        className={`w-8 h-8 rounded border-2 transition-all ${
+                          mindMap.connectionColor === color
+                            ? 'border-blue-500 ring-2 ring-blue-200'
+                            : 'border-gray-300'
+                        }`}
+                        style={{ backgroundColor: color }}
+                        title={color}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className={`block text-xs font-medium mb-2 ${
+                    isDark ? 'text-gray-300' : 'text-gray-600'
+                  }`}>
+                    Width: {mindMap.connectionWidth}px
+                  </label>
+                  <input
+                    type="range"
+                    min="1"
+                    max="5"
+                    value={mindMap.connectionWidth}
+                    onChange={(e) => updateConnection({ connectionWidth: Number(e.target.value) })}
+                    className="w-full"
+                  />
+                </div>
+
+                <button
+                  onClick={() => setShowConnectionPanel(false)}
+                  className={`w-full px-3 py-1.5 rounded text-xs transition-colors ${
+                    isDark
+                      ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                      : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                  }`}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="w-px h-8 bg-gray-300"></div>
+
+        {/* Theme Toggle */}
+        <button
+          onClick={handleThemeToggle}
+          className={`px-3 py-1.5 rounded text-sm font-medium transition-colors flex items-center gap-2 ${
+            isDark
+              ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+              : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+          }`}
+          title={`Switch to ${isDark ? 'Light' : 'Dark'} Mode`}
+        >
+          {isDark ? <Icons.Sun size={16} /> : <Icons.Moon size={16} />}
+        </button>
+
+        <div className="w-px h-8 bg-gray-300"></div>
+
+        {/* Zoom Controls */}
         <button
           onClick={handleZoomOut}
-          className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm font-medium transition-colors"
+          className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+            isDark
+              ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+              : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+          }`}
           title="Zoom Out"
         >
-          −
+          <Icons.ZoomOut size={16} />
         </button>
-        <span className="text-sm text-gray-600 min-w-[60px] text-center">
+        <span className={`text-sm min-w-[60px] text-center ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
           {Math.round(viewState.zoom * 100)}%
         </span>
         <button
           onClick={handleZoomIn}
-          className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm font-medium transition-colors"
+          className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+            isDark
+              ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+              : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+          }`}
           title="Zoom In"
         >
-          +
+          <Icons.ZoomIn size={16} />
         </button>
+
         <button
           onClick={handleResetView}
-          className="ml-2 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm font-medium transition-colors"
+          className="ml-2 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm font-medium transition-colors flex items-center gap-2"
           title="Reset View"
         >
-          Reset View
+          <Icons.Maximize2 size={16} />
+          Reset
         </button>
       </div>
     </div>
