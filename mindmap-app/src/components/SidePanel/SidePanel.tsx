@@ -100,14 +100,18 @@ export function SidePanel() {
     >
       {/* リサイズハンドル */}
       <div
-        className={`absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize hover:bg-blue-500 transition-colors z-10 ${
-          isResizing ? 'bg-blue-500' : 'bg-transparent'
+        className={`absolute left-0 top-0 bottom-0 w-2 cursor-ew-resize transition-colors z-10 ${
+          isResizing
+            ? 'bg-blue-500'
+            : isDark
+            ? 'bg-gray-600 hover:bg-blue-400'
+            : 'bg-gray-300 hover:bg-blue-400'
         }`}
         onMouseDown={handleResizeStart}
         title="ドラッグしてサイズ変更"
       />
       {/* メインコンテンツエリア - 左側にリサイズハンドル分の余白を追加 */}
-      <div className="pl-3">
+      <div className="pl-6">
         <div className={`p-4 border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
         <h2 className={`text-sm font-semibold mb-3 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
           {t('nodeProperties')}

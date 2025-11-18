@@ -81,14 +81,18 @@ export function IconPicker({ selectedIcon, onIconSelect }: IconPickerProps) {
       {/* Modal */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          className="fixed inset-0 z-50 flex items-center justify-center"
           onClick={() => {
             setIsOpen(false);
             setSearch('');
           }}
         >
+          {/* 背景オーバーレイ */}
+          <div className="absolute inset-0 bg-black/50 dark:bg-black/70" />
+
+          {/* モーダルコンテンツ */}
           <div
-            className={`w-full max-w-2xl mx-4 rounded-lg shadow-2xl ${
+            className={`relative w-full max-w-2xl mx-4 rounded-lg shadow-2xl ${
               isDark ? 'bg-gray-800' : 'bg-white'
             }`}
             onClick={(e) => e.stopPropagation()}

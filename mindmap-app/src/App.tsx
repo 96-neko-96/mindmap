@@ -10,12 +10,16 @@ function AppContent() {
 
   // HTMLタグのdarkクラスを動的に制御
   useEffect(() => {
+    const html = document.documentElement;
     if (isDark) {
-      document.documentElement.classList.add('dark');
+      html.classList.add('dark');
     } else {
-      document.documentElement.classList.remove('dark');
+      html.classList.remove('dark');
     }
-  }, [isDark]);
+
+    // デバッグ用ログ
+    console.log('Theme changed to:', mindMap.theme, 'isDark:', isDark, 'HTML has dark class:', html.classList.contains('dark'));
+  }, [isDark, mindMap.theme]);
 
   return (
     <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
