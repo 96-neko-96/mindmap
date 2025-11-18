@@ -3,7 +3,7 @@ import { useMindMap } from '../../context/MindMapContext';
 import { useTranslation } from '../../hooks/useTranslation';
 import { ColorPicker } from '../ColorPicker/ColorPicker';
 import { IconPicker } from '../IconPicker/IconPicker';
-import { PRESET_COLORS, NODE_SIZES, FONT_SIZES, FONT_FAMILIES } from '../../utils/constants';
+import { PRESET_COLORS, FONT_FAMILIES } from '../../utils/constants';
 import * as Icons from 'lucide-react';
 
 export function SidePanel() {
@@ -183,27 +183,29 @@ export function SidePanel() {
                   </div>
                 </div>
 
-                {/* Size Selection */}
+                {/* Size Selection with Slider */}
                 <div className="space-y-2">
                   <label className={`block text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                     {t('size')}
                   </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {Object.entries(NODE_SIZES).map(([size, dimensions]) => (
-                      <button
-                        key={size}
-                        onClick={() => updateNodeStyle(dimensions)}
-                        className={`px-3 py-2 text-xs font-medium rounded transition-all ${
-                          selectedNode.width === dimensions.width
-                            ? 'bg-blue-500 text-white'
-                            : isDark
-                            ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        {size.charAt(0).toUpperCase()}
-                      </button>
-                    ))}
+                  <input
+                    type="range"
+                    min="100"
+                    max="300"
+                    step="10"
+                    value={selectedNode.width}
+                    onChange={(e) => {
+                      const newWidth = Number(e.target.value);
+                      const aspectRatio = selectedNode.height / selectedNode.width;
+                      updateNodeStyle({
+                        width: newWidth,
+                        height: Math.round(newWidth * aspectRatio)
+                      });
+                    }}
+                    className="w-full"
+                  />
+                  <div className={`text-xs text-center ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {selectedNode.width} × {selectedNode.height}px
                   </div>
                 </div>
 
@@ -229,26 +231,23 @@ export function SidePanel() {
                   </select>
                 </div>
 
-                {/* Font Size */}
+                {/* Font Size with Slider */}
                 <div className="space-y-2">
                   <label className={`block text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                     {t('fontSize')}
                   </label>
-                  <select
+                  <input
+                    type="range"
+                    min="8"
+                    max="72"
+                    step="1"
                     value={selectedNode.fontSize}
                     onChange={(e) => updateNodeStyle({ fontSize: Number(e.target.value) })}
-                    className={`w-full px-3 py-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                      isDark
-                        ? 'bg-gray-700 border-gray-600 text-gray-200'
-                        : 'bg-white border-gray-300 text-gray-900'
-                    }`}
-                  >
-                    {FONT_SIZES.map((size) => (
-                      <option key={size} value={size}>
-                        {size}px
-                      </option>
-                    ))}
-                  </select>
+                    className="w-full"
+                  />
+                  <div className={`text-xs text-center ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {selectedNode.fontSize}px
+                  </div>
                 </div>
 
                 {/* Text Styling */}
@@ -313,7 +312,7 @@ export function SidePanel() {
                   <input
                     type="range"
                     min="1"
-                    max="5"
+                    max="10"
                     value={selectedNode.borderWidth}
                     onChange={(e) => updateNodeStyle({ borderWidth: Number(e.target.value) })}
                     className="w-full"

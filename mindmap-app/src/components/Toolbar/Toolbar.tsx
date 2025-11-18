@@ -139,7 +139,7 @@ export function Toolbar() {
                   <input
                     type="range"
                     min="1"
-                    max="5"
+                    max="8"
                     value={mindMap.connectionWidth}
                     onChange={(e) => updateConnection({ connectionWidth: Number(e.target.value) })}
                     className="w-full"
