@@ -20,6 +20,7 @@ const createInitialNode = (): MindMapNode => ({
   shape: 'rounded',
   borderStyle: 'solid',
   borderWidth: 2,
+  borderColor: '#1e40af',
 });
 
 const createInitialMindMap = (): MindMap => {
@@ -93,6 +94,7 @@ function mindMapReducer(state: MindMap, action: MindMapAction): MindMap {
         shape: node.shape || 'rounded',
         borderStyle: node.borderStyle || 'solid',
         borderWidth: node.borderWidth || 1,
+        borderColor: node.borderColor || '#000000',
       };
 
       return {

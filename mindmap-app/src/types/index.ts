@@ -19,6 +19,7 @@ export interface MindMapNode {
   shape: 'rectangle' | 'rounded' | 'ellipse';
   borderStyle: 'solid' | 'dashed';
   borderWidth: number;
+  borderColor?: string;    // Border color
 
   // Icon (for future phases)
   icon?: string;           // lucide-react icon name

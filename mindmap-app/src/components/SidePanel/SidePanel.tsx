@@ -320,6 +320,30 @@ export function SidePanel() {
                   <div className={`text-xs text-center ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                     {t('width')}: {selectedNode.borderWidth}px
                   </div>
+
+                  {/* Border Color */}
+                  <div className="mt-3">
+                    <label className={`block text-xs font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                      {t('borderColor') || 'Border Color'}
+                    </label>
+                    <div className="grid grid-cols-8 gap-2">
+                      {PRESET_COLORS.map((colorOption) => (
+                        <button
+                          key={colorOption.bg}
+                          onClick={() => updateNodeStyle({ borderColor: colorOption.bg })}
+                          className={`w-8 h-8 rounded border-2 transition-all ${
+                            selectedNode.borderColor === colorOption.bg
+                              ? 'ring-2 ring-blue-500 border-blue-500'
+                              : isDark
+                              ? 'border-gray-600'
+                              : 'border-gray-300'
+                          }`}
+                          style={{ backgroundColor: colorOption.bg }}
+                          title={colorOption.name}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Icon Picker */}

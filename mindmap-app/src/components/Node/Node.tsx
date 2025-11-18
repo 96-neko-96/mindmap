@@ -88,7 +88,7 @@ export function Node({ node, onDragStart }: NodeProps) {
           borderRadius,
           borderWidth: node.borderWidth,
           borderStyle: node.borderStyle,
-          borderColor: isSelected ? '#3b82f6' : 'transparent',
+          borderColor: isSelected ? '#3b82f6' : (node.borderColor || '#000000'),
           boxShadow: isSelected
             ? '0 0 0 3px rgba(59, 130, 246, 0.3)'
             : '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
