@@ -1,5 +1,5 @@
-import html2canvas from 'html2canvas';
-import type { MindMap } from '../types/index';
+import domtoimage from 'dom-to-image-more';
+import type { MindMap, MindMapNode } from '../types/index';
 
 /**
  * Export mindmap to JSON file
@@ -66,27 +66,32 @@ export async function exportToPNG(
   }
 ): Promise<void> {
   try {
-    const canvas = await html2canvas(canvasElement, {
-      backgroundColor: options?.backgroundColor || '#ffffff',
-      scale: options?.scale || 2,
-      useCORS: true,
-      logging: false,
-    });
-
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        throw new Error('Failed to create image');
+    // Use dom-to-image-more which supports modern CSS including oklch
+    const dataUrl = await domtoimage.toPng(canvasElement, {
+      bgcolor: options?.backgroundColor || '#ffffff',
+      quality: 1.0,
+      width: canvasElement.scrollWidth * (options?.scale || 2),
+      height: canvasElement.scrollHeight * (options?.scale || 2),
+      style: {
+        transform: 'scale(' + (options?.scale || 2) + ')',
+        transformOrigin: 'top left',
+        width: canvasElement.scrollWidth + 'px',
+        height: canvasElement.scrollHeight + 'px'
       }
-
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${filename}-${new Date().toISOString().slice(0, 10)}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
     });
+
+    // Convert data URL to blob and download
+    const response = await fetch(dataUrl);
+    const blob = await response.blob();
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${filename}-${new Date().toISOString().slice(0, 10)}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   } catch (error) {
     console.error('PNG export failed:', error);
     throw error;
@@ -94,32 +99,125 @@ export async function exportToPNG(
 }
 
 /**
- * Export canvas to SVG
+ * Generate connection path (same as Connection component)
+ */
+function generateConnectionPath(
+  from: MindMapNode,
+  to: MindMapNode,
+  style: 'curved' | 'straight' | 'angled'
+): string {
+  const startX = from.x + from.width / 2;
+  const startY = from.y + from.height / 2;
+  const endX = to.x + to.width / 2;
+  const endY = to.y + to.height / 2;
+
+  if (style === 'straight') {
+    return `M ${startX},${startY} L ${endX},${endY}`;
+  } else if (style === 'angled') {
+    const midX = (startX + endX) / 2;
+    return `M ${startX},${startY} L ${midX},${startY} L ${midX},${endY} L ${endX},${endY}`;
+  } else {
+    // curved (default)
+    const dx = endX - startX;
+    const controlPointOffset = Math.abs(dx) * 0.5;
+
+    const cp1x = startX + controlPointOffset;
+    const cp1y = startY;
+    const cp2x = endX - controlPointOffset;
+    const cp2y = endY;
+
+    return `M ${startX},${startY} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${endX},${endY}`;
+  }
+}
+
+/**
+ * Export mindmap to SVG (complete with nodes and connections)
  */
 export async function exportToSVG(
-  svgElement: SVGSVGElement,
+  mindMap: MindMap,
   filename: string
 ): Promise<void> {
   try {
-    // Clone SVG to avoid modifying original
-    const clonedSVG = svgElement.cloneNode(true) as SVGSVGElement;
+    // Calculate bounds
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    Object.values(mindMap.nodes).forEach(node => {
+      minX = Math.min(minX, node.x);
+      minY = Math.min(minY, node.y);
+      maxX = Math.max(maxX, node.x + node.width);
+      maxY = Math.max(maxY, node.y + node.height);
+    });
 
-    // Get bounding box to determine SVG size
-    const bbox = svgElement.getBBox();
     const padding = 50;
+    const width = maxX - minX + padding * 2;
+    const height = maxY - minY + padding * 2;
+    const offsetX = -minX + padding;
+    const offsetY = -minY + padding;
 
-    // Set viewBox to include all content with padding
-    clonedSVG.setAttribute('viewBox', `${bbox.x - padding} ${bbox.y - padding} ${bbox.width + padding * 2} ${bbox.height + padding * 2}`);
-    clonedSVG.setAttribute('width', `${bbox.width + padding * 2}`);
-    clonedSVG.setAttribute('height', `${bbox.height + padding * 2}`);
-    clonedSVG.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    // Create SVG
+    let svgContent = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+  <defs>
+    <style>
+      text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    </style>
+  </defs>
 
-    // Serialize SVG to string
-    const serializer = new XMLSerializer();
-    const svgString = serializer.serializeToString(clonedSVG);
+  <!-- Background -->
+  <rect width="${width}" height="${height}" fill="${mindMap.theme === 'dark' ? '#111827' : '#f9fafb'}"/>
+
+  <!-- Connections -->
+  <g id="connections">
+`;
+
+    // Draw connections
+    Object.values(mindMap.nodes).forEach(node => {
+      node.children.forEach(childId => {
+        const childNode = mindMap.nodes[childId];
+        if (childNode) {
+          const path = generateConnectionPath(
+            { ...node, x: node.x + offsetX, y: node.y + offsetY } as MindMapNode,
+            { ...childNode, x: childNode.x + offsetX, y: childNode.y + offsetY } as MindMapNode,
+            mindMap.connectionStyle
+          );
+          svgContent += `    <path d="${path}" stroke="${mindMap.connectionColor}" stroke-width="${mindMap.connectionWidth}" fill="none" stroke-linecap="round"/>\n`;
+        }
+      });
+    });
+
+    svgContent += `  </g>
+
+  <!-- Nodes -->
+  <g id="nodes">
+`;
+
+    // Draw nodes
+    Object.values(mindMap.nodes).forEach(node => {
+      const x = node.x + offsetX;
+      const y = node.y + offsetY;
+      const borderRadius = node.shape === 'ellipse'
+        ? Math.min(node.width, node.height) / 2
+        : node.shape === 'rounded' ? 8 : 0;
+
+      // Node background
+      if (node.shape === 'ellipse') {
+        svgContent += `    <ellipse cx="${x + node.width / 2}" cy="${y + node.height / 2}" rx="${node.width / 2}" ry="${node.height / 2}" fill="${node.color}" stroke="${node.borderColor || '#000000'}" stroke-width="${node.borderWidth}" stroke-dasharray="${node.borderStyle === 'dashed' ? '5,5' : '0'}"/>\n`;
+      } else {
+        svgContent += `    <rect x="${x}" y="${y}" width="${node.width}" height="${node.height}" rx="${borderRadius}" fill="${node.color}" stroke="${node.borderColor || '#000000'}" stroke-width="${node.borderWidth}" stroke-dasharray="${node.borderStyle === 'dashed' ? '5,5' : '0'}"/>\n`;
+      }
+
+      // Text (simplified - SVG text handling is complex)
+      const textX = x + node.width / 2;
+      const textY = y + node.height / 2;
+      const fontSize = node.fontSize || 14;
+
+      svgContent += `    <text x="${textX}" y="${textY}" font-size="${fontSize}" font-weight="${node.fontWeight}" font-style="${node.fontStyle}" fill="${node.textColor}" text-anchor="middle" dominant-baseline="middle">${escapeXml(node.text)}</text>\n`;
+    });
+
+    svgContent += `  </g>
+</svg>`;
 
     // Create blob and download
-    const blob = new Blob([svgString], { type: 'image/svg+xml' });
+    const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(blob);
 
     const link = document.createElement('a');
@@ -133,4 +231,16 @@ export async function exportToSVG(
     console.error('SVG export failed:', error);
     throw error;
   }
+}
+
+/**
+ * Escape XML special characters
+ */
+function escapeXml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
 }

@@ -81,10 +81,7 @@ export function Toolbar() {
 
   const handleExportSVG = async () => {
     try {
-      const svgElement = document.querySelector('svg') as SVGSVGElement;
-      if (!svgElement) throw new Error('SVG not found');
-
-      await exportToSVG(svgElement, mindMap.name);
+      await exportToSVG(mindMap, mindMap.name);
       setShowExportMenu(false);
     } catch (error) {
       console.error('SVG export failed:', error);
