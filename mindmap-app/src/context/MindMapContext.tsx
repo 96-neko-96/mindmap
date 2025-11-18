@@ -34,6 +34,7 @@ const createInitialMindMap = (): MindMap => {
     },
     rootNodeId: 'root',
     theme: 'light',
+    language: 'ja',
     colorScheme: 'default',
     defaultNodeColor: '#e0e7ff',
     connectionStyle: 'curved',
@@ -188,6 +189,15 @@ function mindMapReducer(state: MindMap, action: MindMapAction): MindMap {
       return {
         ...state,
         theme,
+        updatedAt: new Date().toISOString(),
+      };
+    }
+
+    case 'SET_LANGUAGE': {
+      const { language } = action.payload;
+      return {
+        ...state,
+        language,
         updatedAt: new Date().toISOString(),
       };
     }

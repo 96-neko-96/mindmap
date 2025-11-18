@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import * as Icons from 'lucide-react';
+import { useTranslation } from '../../hooks/useTranslation';
+import { useMindMap } from '../../context/MindMapContext';
 
 // Popular icons selection
 const AVAILABLE_ICONS = [
@@ -19,6 +21,10 @@ interface IconPickerProps {
 }
 
 export function IconPicker({ selectedIcon, onIconSelect }: IconPickerProps) {
+  const { t } = useTranslation();
+  const { mindMap } = useMindMap();
+  const isDark = mindMap.theme === 'dark';
+
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
 
@@ -33,12 +39,18 @@ export function IconPicker({ selectedIcon, onIconSelect }: IconPickerProps) {
 
   return (
     <div className="space-y-2">
-      <label className="block text-xs font-medium text-gray-600">Icon</label>
+      <label className={`block text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+        {t('icon')}
+      </label>
 
       <div className="flex gap-2">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm transition-colors flex items-center justify-center gap-2"
+          className={`flex-1 px-3 py-2 rounded text-sm transition-colors flex items-center justify-center gap-2 ${
+            isDark
+              ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+              : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+          }`}
         >
           {selectedIcon ? (
             <>
@@ -49,7 +61,7 @@ export function IconPicker({ selectedIcon, onIconSelect }: IconPickerProps) {
               <span>{selectedIcon}</span>
             </>
           ) : (
-            'Select Icon'
+            t('selectIcon')
           )}
         </button>
 
@@ -57,7 +69,7 @@ export function IconPicker({ selectedIcon, onIconSelect }: IconPickerProps) {
           <button
             onClick={() => onIconSelect(undefined)}
             className="px-3 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded text-sm transition-colors"
-            title="Remove icon"
+            title={t('removeIcon')}
           >
             <Icons.X size={16} />
           </button>
@@ -65,13 +77,19 @@ export function IconPicker({ selectedIcon, onIconSelect }: IconPickerProps) {
       </div>
 
       {isOpen && (
-        <div className="border border-gray-300 rounded-lg p-3 bg-white shadow-lg max-h-64 overflow-y-auto">
+        <div className={`border rounded-lg p-3 shadow-lg max-h-64 overflow-y-auto ${
+          isDark ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'
+        }`}>
           <input
             type="text"
-            placeholder="Search icons..."
+            placeholder={t('searchIcons')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded mb-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`w-full px-3 py-2 border rounded mb-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              isDark
+                ? 'bg-gray-600 border-gray-500 text-gray-100 placeholder-gray-400'
+                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+            }`}
           />
 
           <div className="grid grid-cols-6 gap-2">
@@ -83,9 +101,14 @@ export function IconPicker({ selectedIcon, onIconSelect }: IconPickerProps) {
                   onClick={() => {
                     onIconSelect(iconName);
                     setIsOpen(false);
+                    setSearch('');
                   }}
-                  className={`p-2 rounded hover:bg-gray-100 transition-colors ${
-                    selectedIcon === iconName ? 'bg-blue-100 ring-2 ring-blue-500' : ''
+                  className={`p-2 rounded transition-colors ${
+                    selectedIcon === iconName
+                      ? 'bg-blue-100 ring-2 ring-blue-500'
+                      : isDark
+                      ? 'hover:bg-gray-600 text-gray-200'
+                      : 'hover:bg-gray-100 text-gray-700'
                   }`}
                   title={iconName}
                 >

@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useMindMap } from '../../context/MindMapContext';
+import { useTranslation } from '../../hooks/useTranslation';
 import { CONNECTION_COLORS } from '../../utils/constants';
 import * as Icons from 'lucide-react';
 
 export function Toolbar() {
   const { mindMap, viewState, setViewState, dispatch } = useMindMap();
+  const { t } = useTranslation();
   const [showConnectionPanel, setShowConnectionPanel] = useState(false);
 
   const handleZoomIn = () => {
@@ -23,6 +25,13 @@ export function Toolbar() {
     dispatch({
       type: 'SET_THEME',
       payload: { theme: mindMap.theme === 'light' ? 'dark' : 'light' },
+    });
+  };
+
+  const handleLanguageToggle = () => {
+    dispatch({
+      type: 'SET_LANGUAGE',
+      payload: { language: mindMap.language === 'ja' ? 'en' : 'ja' },
     });
   };
 
@@ -62,10 +71,10 @@ export function Toolbar() {
                 ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
                 : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
             }`}
-            title="Connection Settings"
+            title={t('connectionSettings')}
           >
             <Icons.GitBranch size={16} />
-            Lines
+            {t('lines')}
           </button>
 
           {showConnectionPanel && (
@@ -77,7 +86,7 @@ export function Toolbar() {
                   <label className={`block text-xs font-medium mb-2 ${
                     isDark ? 'text-gray-300' : 'text-gray-600'
                   }`}>
-                    Style
+                    {t('style')}
                   </label>
                   <div className="grid grid-cols-3 gap-2">
                     {(['curved', 'straight', 'angled'] as const).map((style) => (
@@ -92,7 +101,7 @@ export function Toolbar() {
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                       >
-                        {style.charAt(0).toUpperCase() + style.slice(1)}
+                        {t(style)}
                       </button>
                     ))}
                   </div>
@@ -102,7 +111,7 @@ export function Toolbar() {
                   <label className={`block text-xs font-medium mb-2 ${
                     isDark ? 'text-gray-300' : 'text-gray-600'
                   }`}>
-                    Color
+                    {t('color')}
                   </label>
                   <div className="grid grid-cols-5 gap-2">
                     {CONNECTION_COLORS.map((color) => (
@@ -125,7 +134,7 @@ export function Toolbar() {
                   <label className={`block text-xs font-medium mb-2 ${
                     isDark ? 'text-gray-300' : 'text-gray-600'
                   }`}>
-                    Width: {mindMap.connectionWidth}px
+                    {t('width')}: {mindMap.connectionWidth}px
                   </label>
                   <input
                     type="range"
@@ -145,7 +154,7 @@ export function Toolbar() {
                       : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                   }`}
                 >
-                  Close
+                  {t('close')}
                 </button>
               </div>
             </div>
@@ -165,6 +174,20 @@ export function Toolbar() {
           title={`Switch to ${isDark ? 'Light' : 'Dark'} Mode`}
         >
           {isDark ? <Icons.Sun size={16} /> : <Icons.Moon size={16} />}
+        </button>
+
+        {/* Language Toggle */}
+        <button
+          onClick={handleLanguageToggle}
+          className={`px-3 py-1.5 rounded text-sm font-medium transition-colors flex items-center gap-2 ${
+            isDark
+              ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+              : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+          }`}
+          title="Toggle Language"
+        >
+          <Icons.Languages size={16} />
+          {mindMap.language === 'ja' ? '日本語' : 'English'}
         </button>
 
         <div className="w-px h-8 bg-gray-300"></div>
@@ -199,10 +222,10 @@ export function Toolbar() {
         <button
           onClick={handleResetView}
           className="ml-2 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm font-medium transition-colors flex items-center gap-2"
-          title="Reset View"
+          title={t('resetView')}
         >
           <Icons.Maximize2 size={16} />
-          Reset
+          {t('reset')}
         </button>
       </div>
     </div>

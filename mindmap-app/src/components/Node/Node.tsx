@@ -105,6 +105,7 @@ export function Node({ node, onDragStart }: NodeProps) {
             className="w-full bg-transparent outline-none text-center"
             style={{
               fontSize: node.fontSize,
+              fontFamily: node.fontFamily || 'system-ui, -apple-system, sans-serif',
               fontWeight: node.fontWeight,
               fontStyle: node.fontStyle,
               color: node.textColor,
@@ -115,6 +116,7 @@ export function Node({ node, onDragStart }: NodeProps) {
             className="flex items-center justify-center gap-2 break-words"
             style={{
               fontSize: node.fontSize,
+              fontFamily: node.fontFamily || 'system-ui, -apple-system, sans-serif',
               fontWeight: node.fontWeight,
               fontStyle: node.fontStyle,
             }}

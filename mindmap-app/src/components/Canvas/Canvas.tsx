@@ -127,7 +127,7 @@ export function Canvas() {
   }, [viewState.selectedNodeId, mindMap.rootNodeId, dispatch]);
 
   // Render connections
-  const connections: JSX.Element[] = [];
+  const connections: React.JSX.Element[] = [];
   Object.values(mindMap.nodes).forEach((node) => {
     node.children.forEach((childId) => {
       const childNode = mindMap.nodes[childId];

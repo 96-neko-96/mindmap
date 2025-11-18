@@ -13,6 +13,7 @@ export interface MindMapNode {
   color: string;           // Background color
   textColor: string;       // Text color
   fontSize: number;        // Font size
+  fontFamily?: string;     // Font family
   fontWeight: 'normal' | 'bold';
   fontStyle: 'normal' | 'italic';
   shape: 'rectangle' | 'rounded' | 'ellipse';
@@ -43,6 +44,7 @@ export interface MindMap {
 
   // Settings
   theme: 'light' | 'dark';
+  language: 'ja' | 'en';
   colorScheme: string;
   defaultNodeColor: string;
   connectionStyle: 'curved' | 'straight' | 'angled';
@@ -59,6 +61,7 @@ export type MindMapAction =
   | { type: 'SELECT_NODE'; payload: { id: string | null } }
   | { type: 'UPDATE_CONNECTION'; payload: { connectionStyle?: string; connectionColor?: string; connectionWidth?: number } }
   | { type: 'SET_THEME'; payload: { theme: 'light' | 'dark' } }
+  | { type: 'SET_LANGUAGE'; payload: { language: 'ja' | 'en' } }
   | { type: 'LOAD_MINDMAP'; payload: { mindMap: MindMap } };
 
 // View state

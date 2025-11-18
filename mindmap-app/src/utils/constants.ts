@@ -28,6 +28,15 @@ export const NODE_SIZES = {
 // Font sizes
 export const FONT_SIZES = [12, 14, 16, 18, 20, 24];
 
+// Font families
+export const FONT_FAMILIES = [
+  { name: 'Sans Serif', value: 'system-ui, -apple-system, sans-serif' },
+  { name: 'Serif', value: 'Georgia, serif' },
+  { name: 'Monospace', value: '"Courier New", monospace' },
+  { name: 'Rounded', value: '"Comic Sans MS", cursive' },
+  { name: 'Elegant', value: '"Times New Roman", serif' },
+];
+
 // Connection line colors
 export const CONNECTION_COLORS = [
   '#94a3b8', // Slate

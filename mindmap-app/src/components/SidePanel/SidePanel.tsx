@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useMindMap } from '../../context/MindMapContext';
+import { useTranslation } from '../../hooks/useTranslation';
 import { ColorPicker } from '../ColorPicker/ColorPicker';
 import { IconPicker } from '../IconPicker/IconPicker';
-import { PRESET_COLORS, NODE_SIZES, FONT_SIZES } from '../../utils/constants';
+import { PRESET_COLORS, NODE_SIZES, FONT_SIZES, FONT_FAMILIES } from '../../utils/constants';
 import * as Icons from 'lucide-react';
 
 export function SidePanel() {
   const { mindMap, viewState, dispatch } = useMindMap();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'style' | 'info'>('style');
 
   const selectedNode = viewState.selectedNodeId
@@ -53,7 +55,9 @@ export function SidePanel() {
       isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
     }`}>
       <div className={`p-4 border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
-        <h2 className={`text-sm font-semibold mb-3 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>Node Properties</h2>
+        <h2 className={`text-sm font-semibold mb-3 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+          {t('nodeProperties')}
+        </h2>
 
         {selectedNode && (
           <div className="flex gap-2">
@@ -62,20 +66,24 @@ export function SidePanel() {
               className={`flex-1 px-3 py-1.5 text-xs font-medium rounded transition-colors ${
                 activeTab === 'style'
                   ? 'bg-blue-500 text-white'
+                  : isDark
+                  ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              Style
+              {t('styleTab')}
             </button>
             <button
               onClick={() => setActiveTab('info')}
               className={`flex-1 px-3 py-1.5 text-xs font-medium rounded transition-colors ${
                 activeTab === 'info'
                   ? 'bg-blue-500 text-white'
+                  : isDark
+                  ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              Info
+              {t('infoTab')}
             </button>
           </div>
         )}
@@ -89,14 +97,15 @@ export function SidePanel() {
                 {/* Color Picker */}
                 <ColorPicker
                   selectedColor={selectedNode.color}
-                  selectedTextColor={selectedNode.textColor}
                   onColorChange={(bg, text) => updateNodeStyle({ color: bg, textColor: text })}
                   colors={PRESET_COLORS}
                 />
 
                 {/* Shape Selection */}
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium text-gray-600">Shape</label>
+                  <label className={`block text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                    {t('shape')}
+                  </label>
                   <div className="grid grid-cols-3 gap-2">
                     {(['rectangle', 'rounded', 'ellipse'] as const).map((shape) => (
                       <button
@@ -105,10 +114,12 @@ export function SidePanel() {
                         className={`px-3 py-2 text-xs font-medium rounded transition-all ${
                           selectedNode.shape === shape
                             ? 'bg-blue-500 text-white'
+                            : isDark
+                            ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                       >
-                        {shape.charAt(0).toUpperCase() + shape.slice(1)}
+                        {t(shape)}
                       </button>
                     ))}
                   </div>
@@ -116,7 +127,9 @@ export function SidePanel() {
 
                 {/* Size Selection */}
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium text-gray-600">Size</label>
+                  <label className={`block text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                    {t('size')}
+                  </label>
                   <div className="grid grid-cols-3 gap-2">
                     {Object.entries(NODE_SIZES).map(([size, dimensions]) => (
                       <button
@@ -125,6 +138,8 @@ export function SidePanel() {
                         className={`px-3 py-2 text-xs font-medium rounded transition-all ${
                           selectedNode.width === dimensions.width
                             ? 'bg-blue-500 text-white'
+                            : isDark
+                            ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                       >
@@ -134,13 +149,41 @@ export function SidePanel() {
                   </div>
                 </div>
 
+                {/* Font Family */}
+                <div className="space-y-2">
+                  <label className={`block text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                    {t('fontFamily')}
+                  </label>
+                  <select
+                    value={selectedNode.fontFamily || FONT_FAMILIES[0].value}
+                    onChange={(e) => updateNodeStyle({ fontFamily: e.target.value })}
+                    className={`w-full px-3 py-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      isDark
+                        ? 'bg-gray-700 border-gray-600 text-gray-200'
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  >
+                    {FONT_FAMILIES.map((font) => (
+                      <option key={font.value} value={font.value}>
+                        {font.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 {/* Font Size */}
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium text-gray-600">Font Size</label>
+                  <label className={`block text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                    {t('fontSize')}
+                  </label>
                   <select
                     value={selectedNode.fontSize}
                     onChange={(e) => updateNodeStyle({ fontSize: Number(e.target.value) })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className={`w-full px-3 py-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      isDark
+                        ? 'bg-gray-700 border-gray-600 text-gray-200'
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
                   >
                     {FONT_SIZES.map((size) => (
                       <option key={size} value={size}>
@@ -152,7 +195,9 @@ export function SidePanel() {
 
                 {/* Text Styling */}
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium text-gray-600">Text Style</label>
+                  <label className={`block text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                    {t('textStyle')}
+                  </label>
                   <div className="flex gap-2">
                     <button
                       onClick={() => updateNodeStyle({
@@ -161,6 +206,8 @@ export function SidePanel() {
                       className={`flex-1 px-3 py-2 text-xs font-bold rounded transition-all ${
                         selectedNode.fontWeight === 'bold'
                           ? 'bg-blue-500 text-white'
+                          : isDark
+                          ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
@@ -173,6 +220,8 @@ export function SidePanel() {
                       className={`flex-1 px-3 py-2 text-xs italic rounded transition-all ${
                         selectedNode.fontStyle === 'italic'
                           ? 'bg-blue-500 text-white'
+                          : isDark
+                          ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
@@ -183,7 +232,9 @@ export function SidePanel() {
 
                 {/* Border Style */}
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium text-gray-600">Border</label>
+                  <label className={`block text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                    {t('border')}
+                  </label>
                   <div className="grid grid-cols-2 gap-2 mb-2">
                     {(['solid', 'dashed'] as const).map((style) => (
                       <button
@@ -192,10 +243,12 @@ export function SidePanel() {
                         className={`px-3 py-2 text-xs font-medium rounded transition-all ${
                           selectedNode.borderStyle === style
                             ? 'bg-blue-500 text-white'
+                            : isDark
+                            ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                       >
-                        {style.charAt(0).toUpperCase() + style.slice(1)}
+                        {t(style)}
                       </button>
                     ))}
                   </div>
@@ -207,20 +260,22 @@ export function SidePanel() {
                     onChange={(e) => updateNodeStyle({ borderWidth: Number(e.target.value) })}
                     className="w-full"
                   />
-                  <div className="text-xs text-gray-500 text-center">
-                    Width: {selectedNode.borderWidth}px
+                  <div className={`text-xs text-center ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {t('width')}: {selectedNode.borderWidth}px
                   </div>
                 </div>
 
                 {/* Icon Picker */}
                 <IconPicker
                   selectedIcon={selectedNode.icon}
-                  onIconSelect={(icon) => updateNodeStyle({ icon })}
+                  onIconSelect={(icon) => updateNodeStyle({ icon, iconPosition: icon ? (selectedNode.iconPosition || 'before') : undefined })}
                 />
 
                 {selectedNode.icon && (
                   <div className="space-y-2">
-                    <label className="block text-xs font-medium text-gray-600">Icon Position</label>
+                    <label className={`block text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                      {t('iconPosition')}
+                    </label>
                     <div className="grid grid-cols-2 gap-2">
                       {(['before', 'after'] as const).map((position) => (
                         <button
@@ -229,10 +284,12 @@ export function SidePanel() {
                           className={`px-3 py-2 text-xs font-medium rounded transition-all ${
                             selectedNode.iconPosition === position
                               ? 'bg-blue-500 text-white'
+                              : isDark
+                              ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                           }`}
                         >
-                          {position.charAt(0).toUpperCase() + position.slice(1)}
+                          {t(position)}
                         </button>
                       ))}
                     </div>
@@ -243,50 +300,58 @@ export function SidePanel() {
               <>
                 {/* Info Tab */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Node ID
+                  <label className={`block text-xs font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                    {t('nodeId')}
                   </label>
-                  <p className="text-sm text-gray-800 font-mono bg-gray-50 px-2 py-1 rounded">
+                  <p className={`text-sm font-mono px-2 py-1 rounded ${
+                    isDark ? 'bg-gray-700 text-gray-200' : 'bg-gray-50 text-gray-800'
+                  }`}>
                     {selectedNode.id}
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Text
+                  <label className={`block text-xs font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                    {t('text')}
                   </label>
-                  <p className="text-sm text-gray-800 bg-gray-50 px-2 py-1 rounded">
+                  <p className={`text-sm px-2 py-1 rounded ${
+                    isDark ? 'bg-gray-700 text-gray-200' : 'bg-gray-50 text-gray-800'
+                  }`}>
                     {selectedNode.text}
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Position
+                  <label className={`block text-xs font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                    {t('position')}
                   </label>
-                  <p className="text-sm text-gray-800 bg-gray-50 px-2 py-1 rounded">
+                  <p className={`text-sm px-2 py-1 rounded ${
+                    isDark ? 'bg-gray-700 text-gray-200' : 'bg-gray-50 text-gray-800'
+                  }`}>
                     X: {Math.round(selectedNode.x)}, Y: {Math.round(selectedNode.y)}
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Children
+                  <label className={`block text-xs font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                    {t('children')}
                   </label>
-                  <p className="text-sm text-gray-800 bg-gray-50 px-2 py-1 rounded">
+                  <p className={`text-sm px-2 py-1 rounded ${
+                    isDark ? 'bg-gray-700 text-gray-200' : 'bg-gray-50 text-gray-800'
+                  }`}>
                     {selectedNode.children.length} node(s)
                   </p>
                 </div>
               </>
             )}
 
-            <div className="pt-4 space-y-2 border-t border-gray-200">
+            <div className={`pt-4 space-y-2 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
               <button
                 onClick={handleAddChild}
                 className="w-full px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm font-medium transition-colors flex items-center justify-center gap-2"
               >
                 <Icons.Plus size={16} />
-                Add Child Node
+                {t('addChildNode')}
               </button>
 
               {selectedNode.id !== mindMap.rootNodeId && (
@@ -295,15 +360,15 @@ export function SidePanel() {
                   className="w-full px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded text-sm font-medium transition-colors flex items-center justify-center gap-2"
                 >
                   <Icons.Trash2 size={16} />
-                  Delete Node
+                  {t('deleteNode')}
                 </button>
               )}
             </div>
           </div>
         ) : (
-          <div className="text-center text-gray-500 text-sm mt-8">
-            <Icons.MousePointerClick size={48} className="mx-auto mb-4 text-gray-400" />
-            <p>Select a node to customize its appearance</p>
+          <div className="text-center text-sm mt-8">
+            <Icons.MousePointerClick size={48} className={`mx-auto mb-4 ${isDark ? 'text-gray-600' : 'text-gray-400'}`} />
+            <p className={isDark ? 'text-gray-400' : 'text-gray-500'}>{t('selectNode')}</p>
           </div>
         )}
       </div>
