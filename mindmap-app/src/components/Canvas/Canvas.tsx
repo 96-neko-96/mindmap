@@ -81,10 +81,17 @@ export function Canvas() {
 
   // Handle canvas mouse down (for panning)
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
+    // Left button (0): pan only when clicking on canvas itself
     if (e.button === 0 && e.target === canvasRef.current) {
       setIsPanning(true);
       setPanStart({ x: e.clientX, y: e.clientY });
       setViewState((prev) => ({ ...prev, selectedNodeId: null }));
+    }
+    // Middle button (1): pan from anywhere (including on nodes)
+    else if (e.button === 1) {
+      e.preventDefault(); // Prevent default middle-click behavior (auto-scroll)
+      setIsPanning(true);
+      setPanStart({ x: e.clientX, y: e.clientY });
     }
   };
 
