@@ -20,6 +20,7 @@ const createInitialNode = (): MindMapNode => ({
   shape: 'rounded',
   borderStyle: 'solid',
   borderWidth: 2,
+  borderColor: '#1e40af',
 });
 
 const createInitialMindMap = (): MindMap => {
@@ -34,6 +35,7 @@ const createInitialMindMap = (): MindMap => {
     },
     rootNodeId: 'root',
     theme: 'light',
+    language: 'ja',
     colorScheme: 'default',
     defaultNodeColor: '#e0e7ff',
     connectionStyle: 'curved',
@@ -92,6 +94,7 @@ function mindMapReducer(state: MindMap, action: MindMapAction): MindMap {
         shape: node.shape || 'rounded',
         borderStyle: node.borderStyle || 'solid',
         borderWidth: node.borderWidth || 1,
+        borderColor: node.borderColor || '#000000',
       };
 
       return {
@@ -188,6 +191,15 @@ function mindMapReducer(state: MindMap, action: MindMapAction): MindMap {
       return {
         ...state,
         theme,
+        updatedAt: new Date().toISOString(),
+      };
+    }
+
+    case 'SET_LANGUAGE': {
+      const { language } = action.payload;
+      return {
+        ...state,
+        language,
         updatedAt: new Date().toISOString(),
       };
     }

@@ -81,10 +81,17 @@ export function Canvas() {
 
   // Handle canvas mouse down (for panning)
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
+    // Left button (0): pan only when clicking on canvas itself
     if (e.button === 0 && e.target === canvasRef.current) {
       setIsPanning(true);
       setPanStart({ x: e.clientX, y: e.clientY });
       setViewState((prev) => ({ ...prev, selectedNodeId: null }));
+    }
+    // Middle button (1): pan from anywhere (including on nodes)
+    else if (e.button === 1) {
+      e.preventDefault(); // Prevent default middle-click behavior (auto-scroll)
+      setIsPanning(true);
+      setPanStart({ x: e.clientX, y: e.clientY });
     }
   };
 
@@ -127,7 +134,7 @@ export function Canvas() {
   }, [viewState.selectedNodeId, mindMap.rootNodeId, dispatch]);
 
   // Render connections
-  const connections: JSX.Element[] = [];
+  const connections: React.JSX.Element[] = [];
   Object.values(mindMap.nodes).forEach((node) => {
     node.children.forEach((childId) => {
       const childNode = mindMap.nodes[childId];
@@ -149,7 +156,7 @@ export function Canvas() {
   return (
     <div
       ref={canvasRef}
-      className="flex-1 overflow-hidden bg-gray-50 relative"
+      className="canvas-container flex-1 overflow-hidden relative transition-colors bg-gray-50 dark:bg-gray-900"
       onMouseDown={handleCanvasMouseDown}
       onWheel={handleWheel}
       style={{ cursor: isPanning ? 'grabbing' : 'grab' }}
