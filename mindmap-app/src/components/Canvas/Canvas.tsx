@@ -149,7 +149,7 @@ export function Canvas() {
   return (
     <div
       ref={canvasRef}
-      className="flex-1 overflow-hidden relative transition-colors bg-gray-50 dark:bg-gray-900"
+      className="canvas-container flex-1 overflow-hidden relative transition-colors bg-gray-50 dark:bg-gray-900"
       onMouseDown={handleCanvasMouseDown}
       onWheel={handleWheel}
       style={{ cursor: isPanning ? 'grabbing' : 'grab' }}

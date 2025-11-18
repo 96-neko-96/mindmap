@@ -52,6 +52,21 @@ export const translations = {
     removeIcon: 'アイコンを削除',
     noIconsFound: 'アイコンが見つかりません',
 
+    // Export/Import
+    export: 'エクスポート',
+    import: 'インポート',
+    exportJSON: 'JSONとして保存',
+    exportPNG: 'PNG画像として保存',
+    exportSVG: 'SVG画像として保存',
+    importJSON: 'JSONから読み込み',
+    exportSuccess: 'エクスポートが完了しました',
+    importSuccess: 'インポートが完了しました',
+    importError: 'インポートに失敗しました',
+    invalidFileFormat: 'ファイル形式が無効です',
+    templates: 'テンプレート',
+    newFromTemplate: 'テンプレートから新規作成',
+    applyTemplate: 'このテンプレートを適用',
+
     // Common
     language: '言語',
   },
@@ -106,6 +121,21 @@ export const translations = {
     searchIcons: 'Search icons...',
     removeIcon: 'Remove Icon',
     noIconsFound: 'No icons found',
+
+    // Export/Import
+    export: 'Export',
+    import: 'Import',
+    exportJSON: 'Export as JSON',
+    exportPNG: 'Export as PNG',
+    exportSVG: 'Export as SVG',
+    importJSON: 'Import from JSON',
+    exportSuccess: 'Export completed successfully',
+    importSuccess: 'Import completed successfully',
+    importError: 'Import failed',
+    invalidFileFormat: 'Invalid file format',
+    templates: 'Templates',
+    newFromTemplate: 'New from Template',
+    applyTemplate: 'Apply this template',
 
     // Common
     language: 'Language',
