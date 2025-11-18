@@ -111,7 +111,7 @@ export function SidePanel() {
         title="ドラッグしてサイズ変更"
       />
       {/* メインコンテンツエリア - 左側にリサイズハンドル分の余白を追加 */}
-      <div className="pl-6">
+      <div className="pl-6 flex flex-col h-full">
         <div className={`p-4 border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
         <h2 className={`text-sm font-semibold mb-3 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
           {t('nodeProperties')}
