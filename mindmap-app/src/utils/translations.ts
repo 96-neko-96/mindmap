@@ -49,6 +49,7 @@ export const translations = {
     // IconPicker
     searchIcons: 'アイコンを検索...',
     removeIcon: 'アイコンを削除',
+    noIconsFound: 'アイコンが見つかりません',
 
     // Common
     language: '言語',
@@ -101,7 +102,8 @@ export const translations = {
 
     // IconPicker
     searchIcons: 'Search icons...',
-    removeIcon: 'Remove icon',
+    removeIcon: 'Remove Icon',
+    noIconsFound: 'No icons found',
 
     // Common
     language: 'Language',

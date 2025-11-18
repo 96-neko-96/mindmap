@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useMindMap } from '../../context/MindMapContext';
 import { useTranslation } from '../../hooks/useTranslation';
 import { ColorPicker } from '../ColorPicker/ColorPicker';
@@ -10,6 +10,9 @@ export function SidePanel() {
   const { mindMap, viewState, dispatch } = useMindMap();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'style' | 'info'>('style');
+  const [panelWidth, setPanelWidth] = useState(320); // 初期幅 320px (w-80相当)
+  const [isResizing, setIsResizing] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   const selectedNode = viewState.selectedNodeId
     ? mindMap.nodes[viewState.selectedNodeId]
@@ -48,12 +51,60 @@ export function SidePanel() {
     }
   };
 
+  // リサイズハンドラー
+  const handleResizeStart = () => {
+    setIsResizing(true);
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return;
+
+      if (panelRef.current) {
+        const rect = panelRef.current.getBoundingClientRect();
+        const newWidth = rect.right - e.clientX;
+        // 最小幅250px、最大幅600px
+        const clampedWidth = Math.min(Math.max(newWidth, 250), 600);
+        setPanelWidth(clampedWidth);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'ew-resize';
+      document.body.style.userSelect = 'none';
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isResizing]);
+
   const isDark = mindMap.theme === 'dark';
 
   return (
-    <div className={`w-80 border-l flex flex-col shadow-sm transition-colors ${
-      isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-    }`}>
+    <div
+      ref={panelRef}
+      className={`border-l flex flex-col shadow-sm transition-colors relative ${
+        isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+      }`}
+      style={{ width: `${panelWidth}px` }}
+    >
+      {/* リサイズハンドル */}
+      <div
+        className={`absolute left-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-blue-500 transition-colors ${
+          isResizing ? 'bg-blue-500' : ''
+        }`}
+        onMouseDown={handleResizeStart}
+      />
       <div className={`p-4 border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
         <h2 className={`text-sm font-semibold mb-3 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
           {t('nodeProperties')}
